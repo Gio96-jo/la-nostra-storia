@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Romantic blush + ivory + sage palette */
+    --background: 36 50% 98%;        /* ivory-50 */
+    --foreground: 20 14% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 14%;
+
+    --primary: 12 56% 53%;           /* warm blush-coral */
+    --primary-foreground: 36 100% 99%;
+
+    --secondary: 36 60% 95%;         /* soft ivory tint */
+    --secondary-foreground: 20 14% 14%;
+
+    --muted: 36 30% 94%;
+    --muted-foreground: 20 8% 42%;
+
+    --accent: 110 18% 70%;           /* sage */
+    --accent-foreground: 110 30% 18%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 25% 88%;
+    --input: 30 25% 88%;
+    --ring: 12 56% 53%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 20 14% 8%;
+    --foreground: 36 30% 95%;
+
+    --card: 20 14% 11%;
+    --card-foreground: 36 30% 95%;
+
+    --popover: 20 14% 11%;
+    --popover-foreground: 36 30% 95%;
+
+    --primary: 12 60% 60%;
+    --primary-foreground: 20 14% 8%;
+
+    --secondary: 20 10% 16%;
+    --secondary-foreground: 36 30% 95%;
+
+    --muted: 20 10% 16%;
+    --muted-foreground: 30 10% 65%;
+
+    --accent: 110 18% 35%;
+    --accent-foreground: 36 30% 95%;
+
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 10% 20%;
+    --input: 20 10% 20%;
+    --ring: 12 60% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@layer components {
+  .romantic-gradient {
+    background:
+      radial-gradient(ellipse at top left, hsl(12 80% 92%) 0%, transparent 55%),
+      radial-gradient(ellipse at bottom right, hsl(110 25% 88%) 0%, transparent 55%),
+      hsl(36 50% 98%);
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+  }
+}
+
+/* Subtle scroll bar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/30;
+}
+
+/* Print styles for checklist */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  .print-break-inside-avoid { break-inside: avoid; }
+}
