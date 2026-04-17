@@ -12,6 +12,7 @@ import {
   DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CATEGORIES, PHASES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import type { ChecklistItem, TaskCategory, WeddingPhase } from "@/lib/types";
@@ -29,11 +30,12 @@ export function AddTaskDialog({ open, onOpenChange, weddingId, onCreated }: Prop
   const [category, setCategory] = useState<TaskCategory>("overig");
   const [phase, setPhase] = useState<WeddingPhase>("een_tot_drie_maanden");
   const [dueDate, setDueDate] = useState("");
+  const [isUrgent, setIsUrgent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function reset() {
     setTitle(""); setDescription(""); setCategory("overig");
-    setPhase("een_tot_drie_maanden"); setDueDate("");
+    setPhase("een_tot_drie_maanden"); setDueDate(""); setIsUrgent(false);
   }
 
   async function submit(e: React.FormEvent) {
@@ -51,6 +53,7 @@ export function AddTaskDialog({ open, onOpenChange, weddingId, onCreated }: Prop
         due_date: dueDate || null,
         is_custom: true,
         sort_order: 9999,
+        is_urgent: isUrgent,
       })
       .select()
       .single();
@@ -104,6 +107,10 @@ export function AddTaskDialog({ open, onOpenChange, weddingId, onCreated }: Prop
           <div className="space-y-2">
             <Label htmlFor="due">Deadline</Label>
             <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="urgent" checked={isUrgent} onCheckedChange={(v) => setIsUrgent(!!v)} />
+            <Label htmlFor="urgent" className="cursor-pointer">Markeer als urgent (verschijnt bovenaan)</Label>
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Annuleren</Button>

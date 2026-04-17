@@ -35,6 +35,8 @@ export type SupplierStatus =
   | "geboekt"
   | "betaald";
 
+export type ChecklistStatus = "open" | "in_progress" | "done";
+
 export interface Wedding {
   id: string;
   owner_id: string;
@@ -63,6 +65,8 @@ export interface ChecklistItem {
   notes: string | null;
   sort_order: number;
   is_custom: boolean;
+  status: ChecklistStatus;
+  is_urgent: boolean;
   created_at: string;
   updated_at: string;
 }

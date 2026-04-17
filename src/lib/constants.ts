@@ -1,4 +1,4 @@
-import type { TaskCategory, WeddingPhase, RsvpStatus, GuestRelation, SupplierStatus } from "./types";
+import type { TaskCategory, WeddingPhase, RsvpStatus, GuestRelation, SupplierStatus, ChecklistStatus } from "./types";
 
 export const APP_NAME = "La Nostra Storia";
 export const APP_TAGLINE = "Jullie complete trouwplanner";
@@ -41,6 +41,16 @@ export const GUEST_RELATIONS: { value: GuestRelation; label: string }[] = [
   { value: "collegas", label: "Collega's" },
   { value: "overig", label: "Overig" },
 ];
+
+export const CHECKLIST_STATUSES: { value: ChecklistStatus; label: string; color: string }[] = [
+  { value: "open", label: "Open", color: "bg-stone-100 text-stone-800" },
+  { value: "in_progress", label: "Bezig", color: "bg-amber-100 text-amber-800" },
+  { value: "done", label: "Klaar", color: "bg-sage-200 text-sage-800" },
+];
+
+export function getChecklistStatusMeta(value: ChecklistStatus) {
+  return CHECKLIST_STATUSES.find((s) => s.value === value) ?? CHECKLIST_STATUSES[0];
+}
 
 export const SUPPLIER_STATUSES: { value: SupplierStatus; label: string; color: string }[] = [
   { value: "contact_opgenomen", label: "Contact opgenomen", color: "bg-stone-100 text-stone-800" },

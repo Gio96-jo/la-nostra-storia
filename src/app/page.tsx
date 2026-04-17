@@ -38,7 +38,7 @@ export default function LandingPage() {
         </h1>
         <p className="mt-6 text-lg text-muted-foreground">
           {APP_NAME} begeleidt jullie van de eerste droom tot de laatste dans.
-          Een complete trouwplanner — gemaakt voor verloofde stellen in Nederland.
+          Een complete trouwplanner — gemaakt voor verloofde stellen.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button asChild size="lg"><Link href="/registreren">Maak gratis een account</Link></Button>
