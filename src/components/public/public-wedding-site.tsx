@@ -2,6 +2,7 @@ import { Heart, MapPin, UtensilsCrossed, Shirt, CalendarHeart, ExternalLink, Cam
 import { themeToCss } from "@/lib/themes";
 import { formatDateNL } from "@/lib/utils";
 import type { WeddingTheme } from "@/lib/types";
+import { PublicAddToCalendar } from "./public-add-to-calendar";
 
 interface PublicWedding {
   partner_one_name: string;
@@ -64,6 +65,17 @@ function timeShort(t: string | null | undefined) {
   return t.slice(0, 5);
 }
 
+function combineDateTime(date: string, time: string | null | undefined): Date {
+  // date: "YYYY-MM-DD", time: "HH:MM" of "HH:MM:SS"
+  if (!time) {
+    const [y, m, d] = date.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+  const [hh, mm] = time.slice(0, 5).split(":").map(Number);
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(y, m - 1, d, hh || 0, mm || 0, 0);
+}
+
 export function PublicWeddingSite({
   data,
   rsvpSlot = null,
@@ -112,6 +124,20 @@ export function PublicWeddingSite({
                 {[wedding.venue_name, wedding.city].filter(Boolean).join(" — ")}
               </p>
             ) : null}
+            <div className="mt-5 flex justify-center">
+              <PublicAddToCalendar
+                event={{
+                  title: `Bruiloft ${names}`,
+                  description: wedding.public_hero_subtitle || undefined,
+                  location: [wedding.venue_name, wedding.city, wedding.public_address]
+                    .filter(Boolean)
+                    .join(", ") || undefined,
+                  start: wedding.wedding_date,
+                }}
+                label="Zet in mijn agenda"
+                filename={`bruiloft-${names}`}
+              />
+            </div>
           </div>
         </header>
 
@@ -185,6 +211,23 @@ export function PublicWeddingSite({
                           <ExternalLink className="h-3 w-3" />
                           Website
                         </a>
+                      ) : null}
+                      {s.start_time ? (
+                        <div className="mt-2">
+                          <PublicAddToCalendar
+                            event={{
+                              title: s.title,
+                              description: s.description || undefined,
+                              location: [s.location_name, s.address].filter(Boolean).join(", ") || undefined,
+                              start: combineDateTime(wedding.wedding_date, s.start_time),
+                              end: s.end_time
+                                ? combineDateTime(wedding.wedding_date, s.end_time)
+                                : undefined,
+                            }}
+                            label="In agenda"
+                            filename={`${s.title}`}
+                          />
+                        </div>
                       ) : null}
                     </div>
                   </li>

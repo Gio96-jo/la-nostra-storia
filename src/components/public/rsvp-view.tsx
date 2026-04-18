@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import type { GuestInviteType, RsvpStatus, WeddingTheme } from "@/lib/types";
 import { PublicWeddingSite } from "./public-wedding-site";
 import type { PublicWeddingData, PublicPhoto } from "./public-wedding-site";
+import { MusicRequestForm } from "./music-request-form";
 
 interface Guest {
   id: string;
@@ -207,7 +208,12 @@ export function RsvpView({ token, payload }: { token: string; payload: RsvpPaylo
   return (
     <PublicWeddingSite
       data={{ wedding, schedule, photos, couplePhotoUrl }}
-      rsvpSlot={rsvpSlot}
+      rsvpSlot={
+        <>
+          {rsvpSlot}
+          <MusicRequestForm token={token} />
+        </>
+      }
     />
   );
 }

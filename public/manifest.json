@@ -1,0 +1,20 @@
+{
+  "name": "La Nostra Storia — Bruiloftsplanner",
+  "short_name": "La Nostra Storia",
+  "description": "De complete trouwplanner voor verloofde stellen.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fafaf7",
+  "theme_color": "#c8a27d",
+  "lang": "nl-NL",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

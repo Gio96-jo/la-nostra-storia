@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ListChecks, Wallet, Users, Building2, CalendarDays,
-  NotebookPen, Settings, Heart, CalendarClock, Lightbulb, Camera, Armchair, type LucideIcon,
+  NotebookPen, Settings, Heart, CalendarClock, Lightbulb, Camera, Armchair,
+  Music, UtensilsCrossed, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
 
 const ICONS: Record<string, LucideIcon> = {
-  LayoutDashboard, ListChecks, Wallet, Users, Building2, CalendarDays, CalendarClock, Lightbulb, Camera, Armchair, NotebookPen, Settings,
+  LayoutDashboard, ListChecks, Wallet, Users, Building2, CalendarDays, CalendarClock, Lightbulb, Camera, Armchair, Music, UtensilsCrossed, NotebookPen, Settings,
 };
 
 const NAV = [
@@ -19,6 +20,8 @@ const NAV = [
   { href: "/budget", label: "Budget", icon: "Wallet" },
   { href: "/gasten", label: "Gasten", icon: "Users" },
   { href: "/tafelindeling", label: "Tafelindeling", icon: "Armchair" },
+  { href: "/dieet", label: "Dieetoverzicht", icon: "UtensilsCrossed" },
+  { href: "/muziek", label: "Muziekwensen", icon: "Music" },
   { href: "/leveranciers", label: "Leveranciers", icon: "Building2" },
   { href: "/tijdlijn", label: "Tijdlijn", icon: "CalendarDays" },
   { href: "/dagplanning", label: "Dagplanning", icon: "CalendarClock" },

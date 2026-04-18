@@ -195,6 +195,18 @@ export interface DayScheduleItem {
   updated_at: string;
 }
 
+export interface MusicRequest {
+  id: string;
+  wedding_id: string;
+  guest_id: string | null;
+  guest_name: string;
+  song_title: string;
+  artist: string | null;
+  spotify_url: string | null;
+  note: string | null;
+  created_at: string;
+}
+
 export type PhotoSourceType = "note" | "checklist" | "booth";
 
 export interface Photo {

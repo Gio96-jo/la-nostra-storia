@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  Armchair, CheckCircle2, GripVertical, MoreVertical, Pencil, Plus,
+  Armchair, CheckCircle2, GripVertical, MoreVertical, Pencil, Plus, Printer,
   Trash2, UserMinus, Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -137,18 +137,68 @@ export function SeatingView({ weddingId, initialTables, initialGuests }: Props) 
 
   return (
     <div>
-      <PageHeader
-        title="Tafelindeling"
-        description="Sleep gasten naar een tafel. +1's tellen mee voor de capaciteit."
-        actions={
-          <Button onClick={() => setEditing("new")} size="sm">
-            <Plus className="h-4 w-4" />
-            Nieuwe tafel
-          </Button>
-        }
-      />
+      <div className="no-print">
+        <PageHeader
+          title="Tafelindeling"
+          description="Sleep gasten naar een tafel. +1's tellen mee voor de capaciteit."
+          actions={
+            <>
+              <Button variant="outline" size="sm" onClick={() => window.print()}>
+                <Printer className="h-4 w-4" />
+                Print
+              </Button>
+              <Button onClick={() => setEditing("new")} size="sm">
+                <Plus className="h-4 w-4" />
+                Nieuwe tafel
+              </Button>
+            </>
+          }
+        />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+      {/* Print-only: A4-lijst met tafels + gasten */}
+      <div className="hidden print:block">
+        <h1 className="font-serif text-3xl font-semibold mb-1">Tafelindeling</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          {tables.length} tafels — {guests.filter((g) => g.seating_table_id).length} gasten ingedeeld
+        </p>
+        <div className="grid grid-cols-2 gap-6">
+          {tables.map((t) => {
+            const seated = guests.filter((g) => g.seating_table_id === t.id);
+            return (
+              <div key={t.id} className="break-inside-avoid border rounded-lg p-4">
+                <div className="flex items-baseline justify-between mb-2">
+                  <h2 className="font-serif text-lg font-semibold">{t.name}</h2>
+                  <span className="text-xs text-muted-foreground">
+                    {guestCountForTable(guests, t.id)}/{t.capacity}
+                  </span>
+                </div>
+                {t.notes ? (
+                  <p className="text-xs text-muted-foreground mb-2 italic">{t.notes}</p>
+                ) : null}
+                {seated.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">—</p>
+                ) : (
+                  <ol className="text-sm space-y-0.5 list-decimal pl-5">
+                    {seated.map((g) => (
+                      <li key={g.id}>
+                        {fullName(g)}
+                        {g.plus_one ? (
+                          <span className="text-muted-foreground">
+                            {" + "}{g.plus_one_name || "+1"}
+                          </span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="no-print grid gap-6 lg:grid-cols-[300px_1fr]">
         {/* Unassigned column */}
         <div
           onDragOver={(e) => {

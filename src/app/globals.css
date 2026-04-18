@@ -110,6 +110,10 @@
   .no-print { display: none !important; }
   body { background: white; }
   .print-break-inside-avoid { break-inside: avoid; }
+  /* Verberg app-shell tijdens printen */
+  aside, header, nav { display: none !important; }
+  main { padding: 0 !important; }
+  .container { max-width: none !important; padding: 0 !important; }
 }
 
 /* Mobile: voorkom dat date/number-inputs uit hun container breken

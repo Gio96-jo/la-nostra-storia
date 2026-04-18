@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Cormorant_Garamond } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
@@ -18,6 +18,22 @@ export const metadata: Metadata = {
   description:
     "De complete Nederlandse trouwplanner voor verloofde stellen. Checklist, budget, gastenlijst, leveranciers en meer — alles op één plek.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: APP_NAME,
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c8a27d",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

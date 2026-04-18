@@ -11,6 +11,7 @@ import { cn, formatDateNL } from "@/lib/utils";
 import { getCategoryMeta, getChecklistStatusMeta } from "@/lib/constants";
 import type { ChecklistItem, ChecklistStatus, Photo } from "@/lib/types";
 import { PhotoGallery } from "@/components/photos/photo-gallery";
+import { AddToCalendarButton } from "@/components/app/add-to-calendar-button";
 
 interface Props {
   item: ChecklistItem;
@@ -196,7 +197,17 @@ export function ChecklistItemRow({
             />
           </div>
 
-          <div className="flex justify-end no-print">
+          <div className="flex flex-wrap justify-end gap-2 no-print">
+            {item.due_date ? (
+              <AddToCalendarButton
+                event={{
+                  title: item.title,
+                  description: item.description || item.notes || undefined,
+                  start: item.due_date,
+                }}
+                filename={`taak-${item.title}`}
+              />
+            ) : null}
             <Button variant="ghost" size="sm" className="text-destructive" onClick={onDelete}>
               <Trash2 className="h-4 w-4" /> Verwijderen
             </Button>
