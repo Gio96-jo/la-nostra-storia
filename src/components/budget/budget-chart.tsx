@@ -14,17 +14,17 @@ interface Props {
 
 export function BudgetChart({ data }: Props) {
   return (
-    <div className="h-72">
+    <div className="h-80 w-full min-w-0 overflow-hidden">
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
+        <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <Pie
             data={data}
             dataKey="value"
             nameKey="label"
             cx="50%"
-            cy="50%"
-            outerRadius={90}
-            innerRadius={45}
+            cy="40%"
+            outerRadius="65%"
+            innerRadius="38%"
             paddingAngle={2}
           >
             {data.map((_, i) => (
@@ -35,7 +35,11 @@ export function BudgetChart({ data }: Props) {
             formatter={(value: number, name: string) => [formatCurrency(value), name]}
             contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
           />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Legend
+            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+            iconSize={10}
+            verticalAlign="bottom"
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

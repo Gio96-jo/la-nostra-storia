@@ -130,6 +130,22 @@ export interface Note {
   updated_at: string;
 }
 
+export interface DayScheduleItem {
+  id: string;
+  wedding_id: string;
+  start_time: string; // "HH:MM:SS" or "HH:MM"
+  end_time: string | null;
+  title: string;
+  description: string | null;
+  location_name: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // Supabase Database type
 export type Database = {
   public: {
@@ -140,6 +156,11 @@ export type Database = {
       budget_items: { Row: BudgetItem; Insert: Partial<BudgetItem> & Pick<BudgetItem, "wedding_id" | "description">; Update: Partial<BudgetItem> };
       guests: { Row: Guest; Insert: Partial<Guest> & Pick<Guest, "wedding_id" | "first_name">; Update: Partial<Guest> };
       notes: { Row: Note; Insert: Partial<Note> & Pick<Note, "wedding_id" | "title">; Update: Partial<Note> };
+      day_schedule_items: {
+        Row: DayScheduleItem;
+        Insert: Partial<DayScheduleItem> & Pick<DayScheduleItem, "wedding_id" | "start_time" | "title">;
+        Update: Partial<DayScheduleItem>;
+      };
     };
   };
 };

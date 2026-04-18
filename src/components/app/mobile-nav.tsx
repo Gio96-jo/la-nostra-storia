@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ListChecks, Wallet, Users, Building2, CalendarDays,
-  NotebookPen, Settings, MoreHorizontal, type LucideIcon,
+  CalendarClock, NotebookPen, Settings, MoreHorizontal, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const ICONS: Record<string, LucideIcon> = {
-  LayoutDashboard, ListChecks, Wallet, Users, Building2, CalendarDays, NotebookPen, Settings,
+  LayoutDashboard, ListChecks, Wallet, Users, Building2, CalendarDays, CalendarClock, NotebookPen, Settings,
 };
 
 const MAIN_ITEMS = [
@@ -28,6 +28,7 @@ const MAIN_ITEMS = [
 const MORE_ITEMS = [
   { href: "/leveranciers", label: "Leveranciers", icon: "Building2" },
   { href: "/tijdlijn", label: "Tijdlijn", icon: "CalendarDays" },
+  { href: "/dagplanning", label: "Dagplanning", icon: "CalendarClock" },
   { href: "/notities", label: "Notities", icon: "NotebookPen" },
   { href: "/instellingen", label: "Instellingen", icon: "Settings" },
 ];
