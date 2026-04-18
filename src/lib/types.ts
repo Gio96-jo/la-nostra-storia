@@ -142,6 +142,23 @@ export interface Guest {
   rsvp_token: string | null;
   rsvp_submitted_at: string | null;
   notes: string | null;
+  seating_table_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SeatingTableShape = "round" | "rectangle";
+
+export interface SeatingTable {
+  id: string;
+  wedding_id: string;
+  name: string;
+  capacity: number;
+  shape: SeatingTableShape;
+  position_x: number;
+  position_y: number;
+  sort_order: number;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -214,6 +231,11 @@ export type Database = {
         Row: Photo;
         Insert: Partial<Photo> & Pick<Photo, "wedding_id" | "storage_path" | "source_type">;
         Update: Partial<Photo>;
+      };
+      seating_tables: {
+        Row: SeatingTable;
+        Insert: Partial<SeatingTable> & Pick<SeatingTable, "wedding_id" | "name">;
+        Update: Partial<SeatingTable>;
       };
     };
   };
