@@ -112,6 +112,29 @@
   .print-break-inside-avoid { break-inside: avoid; }
 }
 
+/* Mobile: voorkom dat date/number-inputs uit hun container breken
+   (native picker-UI op iOS/Safari duwde anders de grid-cel op) */
+input[type="date"],
+input[type="time"],
+input[type="number"],
+input[type="datetime-local"] {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+@media (max-width: 640px) {
+  input[type="date"],
+  input[type="time"],
+  input[type="number"],
+  input[type="datetime-local"] {
+    width: 100%;
+    font-size: 16px; /* voorkomt auto-zoom op iOS */
+  }
+}
+
 /* Leaflet: zorg dat kaartcontrols nooit over modals/dialogs vallen */
 .leaflet-pane,
 .leaflet-top,

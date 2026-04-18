@@ -1,4 +1,4 @@
-import { Heart, MapPin, UtensilsCrossed, Shirt, CalendarHeart } from "lucide-react";
+import { Heart, MapPin, UtensilsCrossed, Shirt, CalendarHeart, ExternalLink, Camera } from "lucide-react";
 import { themeToCss } from "@/lib/themes";
 import { formatDateNL } from "@/lib/utils";
 import type { WeddingTheme } from "@/lib/types";
@@ -16,6 +16,7 @@ interface PublicWedding {
   public_rsvp_deadline: string | null;
   public_hero_subtitle: string | null;
   public_address: string | null;
+  couple_photo_path?: string | null;
   public_slug?: string | null;
   public_enabled?: boolean;
 }
@@ -28,12 +29,33 @@ interface PublicScheduleItem {
   description: string | null;
   location_name: string | null;
   address: string | null;
+  lat: number | null;
+  lng: number | null;
+  website: string | null;
   is_evening_only?: boolean;
+}
+
+export interface PublicPhoto {
+  id: string;
+  storage_path: string;
+  caption: string | null;
+  url?: string | null;
 }
 
 export interface PublicWeddingData {
   wedding: PublicWedding;
   schedule: PublicScheduleItem[];
+  photos?: PublicPhoto[];
+  couplePhotoUrl?: string | null;
+}
+
+function mapLink(s: PublicScheduleItem): string | null {
+  if (s.lat !== null && s.lng !== null) {
+    return `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+  }
+  const q = [s.location_name, s.address].filter(Boolean).join(" ");
+  if (!q) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
 
 function timeShort(t: string | null | undefined) {
@@ -49,7 +71,7 @@ export function PublicWeddingSite({
   data: PublicWeddingData;
   rsvpSlot?: React.ReactNode;
 }) {
-  const { wedding, schedule } = data;
+  const { wedding, schedule, photos = [], couplePhotoUrl = null } = data;
   const themeCss = themeToCss(wedding.theme);
   const names = `${wedding.partner_one_name} & ${wedding.partner_two_name}`;
 
@@ -60,7 +82,18 @@ export function PublicWeddingSite({
         {/* Hero */}
         <header className="romantic-gradient border-b">
           <div className="container max-w-3xl py-16 sm:py-24 text-center">
-            <Heart className="mx-auto h-8 w-8 text-primary mb-4" fill="currentColor" />
+            {couplePhotoUrl ? (
+              // Geen next/image hier — dit component wordt ook op publieke
+              // anon-pagina's gerenderd; we gebruiken bewust een plain <img>.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={couplePhotoUrl}
+                alt={names}
+                className="mx-auto mb-5 h-32 w-32 rounded-full object-cover ring-4 ring-primary/20"
+              />
+            ) : (
+              <Heart className="mx-auto h-8 w-8 text-primary mb-4" fill="currentColor" />
+            )}
             <h1 className="font-serif text-4xl sm:text-5xl font-semibold leading-tight">
               {names}
             </h1>
@@ -120,11 +153,38 @@ export function PublicWeddingSite({
                           {s.description}
                         </p>
                       ) : null}
-                      {s.location_name || s.address ? (
-                        <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          {[s.location_name, s.address].filter(Boolean).join(" — ")}
-                        </p>
+                      {s.location_name || s.address ? (() => {
+                        const href = mapLink(s);
+                        const label = [s.location_name, s.address].filter(Boolean).join(" — ");
+                        return href ? (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                            title="Open route in Google Maps"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            {label}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            {label}
+                          </p>
+                        );
+                      })() : null}
+                      {s.website ? (
+                        <a
+                          href={s.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Website
+                        </a>
                       ) : null}
                     </div>
                   </li>
@@ -154,6 +214,32 @@ export function PublicWeddingSite({
               <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
                 {wedding.public_dress_code}
               </p>
+            </section>
+          ) : null}
+
+          {photos.length > 0 ? (
+            <section>
+              <h2 className="font-serif text-2xl font-semibold mb-3 flex items-center gap-2">
+                <Camera className="h-5 w-5 text-primary" />
+                Onze voorbereidingen
+              </h2>
+              <p className="text-xs text-muted-foreground mb-3">
+                Een kleine sneak peek — gedeeld door {names}.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {photos.map((p) =>
+                  p.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={p.id}
+                      src={p.url}
+                      alt={p.caption ?? ""}
+                      className="aspect-square w-full rounded-lg object-cover"
+                      loading="lazy"
+                    />
+                  ) : null
+                )}
+              </div>
             </section>
           ) : null}
 

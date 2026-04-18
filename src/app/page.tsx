@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/constants";
-import { ListChecks, Wallet, Users, Building2, CalendarDays, NotebookPen, Heart, Sparkles } from "lucide-react";
+import {
+  ListChecks, Wallet, Users, Building2, CalendarDays, NotebookPen, Heart, Sparkles,
+  Camera, Palette, Globe2, Lightbulb,
+} from "lucide-react";
 
 const FEATURES = [
   { icon: ListChecks, title: "Checklist per fase", desc: "Meer dan 50 taken, automatisch gepland van 12+ maanden tot de dag zelf." },
@@ -10,6 +13,10 @@ const FEATURES = [
   { icon: Building2, title: "Leveranciers", desc: "Locatie, fotograaf, DJ — alle contacten en offertes op één plek." },
   { icon: CalendarDays, title: "Tijdlijn", desc: "Zie maand voor maand wat er aan komt. Geen verrassingen." },
   { icon: NotebookPen, title: "Notities & Inspiratie", desc: "Bewaar links, ideeën en Pinterest-borden samen." },
+  { icon: Camera, title: "Photobooth", desc: "Foto's bij taken, notities en momenten — alles chronologisch bewaard." },
+  { icon: Palette, title: "8 thema's", desc: "Van romantisch blush tot mediterraan — kies de sfeer die bij jullie past." },
+  { icon: Globe2, title: "Publieke site & RSVP", desc: "Deel jullie verhaal en laat gasten online bevestigen via een persoonlijke link." },
+  { icon: Lightbulb, title: "1000 ideeën", desc: "Inspiratie op maat van jullie thema — klik en bewaar wat jullie raakt." },
 ];
 
 export default function LandingPage() {
@@ -71,8 +78,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="container py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {APP_NAME}. Met liefde gemaakt.
+      <footer className="container py-8 text-center text-xs text-muted-foreground space-y-1">
+        <p>© {new Date().getFullYear()} {APP_NAME}. Met liefde gemaakt.</p>
+        <p className="inline-flex items-center gap-1">
+          by <span className="font-medium text-foreground/70">Gio &amp; Naomi</span>
+          <Heart className="h-3 w-3 text-primary" fill="currentColor" />
+        </p>
       </footer>
     </div>
   );

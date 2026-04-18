@@ -1,9 +1,38 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PublicWeddingSite } from "@/components/public/public-wedding-site";
-import type { PublicWeddingData } from "@/components/public/public-wedding-site";
+import type { PublicWeddingData, PublicPhoto } from "@/components/public/public-wedding-site";
 
 export const dynamic = "force-dynamic";
+
+const BUCKET = "wedding-photos";
+const SIGNED_TTL = 60 * 60;
+
+async function enrichWithSignedUrls(
+  data: PublicWeddingData,
+  supabase: ReturnType<typeof createClient>,
+): Promise<PublicWeddingData> {
+  const paths: string[] = [];
+  (data.photos ?? []).forEach((p) => paths.push(p.storage_path));
+  const couplePath = data.wedding.couple_photo_path ?? null;
+  if (couplePath) paths.push(couplePath);
+
+  if (paths.length === 0) return { ...data, photos: data.photos ?? [], couplePhotoUrl: null };
+
+  const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrls(paths, SIGNED_TTL);
+  const map = new Map<string, string>();
+  (signed ?? []).forEach((r) => {
+    if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
+  });
+
+  const photos: PublicPhoto[] = (data.photos ?? []).map((p) => ({
+    ...p,
+    url: map.get(p.storage_path) ?? null,
+  }));
+  const couplePhotoUrl = couplePath ? (map.get(couplePath) ?? null) : null;
+
+  return { ...data, photos, couplePhotoUrl };
+}
 
 export default async function PublicWeddingPage({
   params,
@@ -19,7 +48,8 @@ export default async function PublicWeddingPage({
     notFound();
   }
 
-  return <PublicWeddingSite data={data as unknown as PublicWeddingData} />;
+  const enriched = await enrichWithSignedUrls(data as unknown as PublicWeddingData, supabase);
+  return <PublicWeddingSite data={enriched} />;
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {

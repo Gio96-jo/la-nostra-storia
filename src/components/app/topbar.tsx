@@ -9,8 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/constants";
+import { GlobalSearch } from "./global-search";
 
-export function Topbar({ email, partnerNames }: { email: string; partnerNames: string }) {
+export function Topbar({
+  email, partnerNames, weddingId,
+}: { email: string; partnerNames: string; weddingId: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -25,18 +28,22 @@ export function Topbar({ email, partnerNames }: { email: string; partnerNames: s
             <p className="text-[11px] text-muted-foreground truncate">{partnerNames}</p>
           </div>
         </div>
-        <UserMenu email={email} theme={theme} setTheme={setTheme} mounted={mounted} />
+        <div className="flex items-center gap-1">
+          <GlobalSearch weddingId={weddingId} />
+          <UserMenu email={email} theme={theme} setTheme={setTheme} mounted={mounted} />
+        </div>
       </div>
     </header>
   );
 }
 
-export function DesktopUserMenu({ email }: { email: string }) {
+export function DesktopUserMenu({ email, weddingId }: { email: string; weddingId: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   return (
-    <div className="hidden lg:flex items-center justify-end gap-2 border-b bg-card/40 backdrop-blur px-6 py-3">
+    <div className="hidden lg:flex items-center justify-end gap-1 border-b bg-card/40 backdrop-blur px-6 py-3">
+      <GlobalSearch weddingId={weddingId} />
       <UserMenu email={email} theme={theme} setTheme={setTheme} mounted={mounted} />
     </div>
   );

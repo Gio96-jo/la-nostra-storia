@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { GuestInviteType, RsvpStatus, WeddingTheme } from "@/lib/types";
 import { PublicWeddingSite } from "./public-wedding-site";
-import type { PublicWeddingData } from "./public-wedding-site";
+import type { PublicWeddingData, PublicPhoto } from "./public-wedding-site";
 
 interface Guest {
   id: string;
@@ -32,10 +32,12 @@ export interface RsvpPayload {
     public_enabled: boolean;
   };
   schedule: PublicWeddingData["schedule"];
+  photos?: PublicPhoto[];
+  couplePhotoUrl?: string | null;
 }
 
 export function RsvpView({ token, payload }: { token: string; payload: RsvpPayload }) {
-  const { guest, wedding, schedule } = payload;
+  const { guest, wedding, schedule, photos = [], couplePhotoUrl = null } = payload;
 
   const [status, setStatus] = useState<"bevestigd" | "afgemeld" | null>(
     guest.rsvp_status === "bevestigd" || guest.rsvp_status === "afgemeld"
@@ -204,7 +206,7 @@ export function RsvpView({ token, payload }: { token: string; payload: RsvpPaylo
 
   return (
     <PublicWeddingSite
-      data={{ wedding, schedule }}
+      data={{ wedding, schedule, photos, couplePhotoUrl }}
       rsvpSlot={rsvpSlot}
     />
   );

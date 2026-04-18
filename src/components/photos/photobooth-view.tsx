@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Camera, ImagePlus, Loader2, Trash2, X, ListChecks, NotebookPen, Sparkles } from "lucide-react";
+import { Camera, ImagePlus, Loader2, Trash2, X, ListChecks, NotebookPen, Sparkles, Globe2, Lock } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +50,7 @@ export function PhotoboothView({ weddingId, initial, noteLabels, taskLabels }: P
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [togglingPublic, setTogglingPublic] = useState<string | null>(null);
   const [preview, setPreview] = useState<Photo | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -108,6 +110,26 @@ export function PhotoboothView({ weddingId, initial, noteLabels, taskLabels }: P
     }
     setUploading(false);
     if (fileInput.current) fileInput.current.value = "";
+  }
+
+  async function togglePublic(p: Photo) {
+    if (p.source_type !== "booth") {
+      toast.error("Alleen photobooth-foto's kunnen publiek worden gemaakt.");
+      return;
+    }
+    const next = !p.is_public;
+    setTogglingPublic(p.id);
+    // Optimistic
+    setPhotos((prev) => prev.map((x) => (x.id === p.id ? { ...x, is_public: next } : x)));
+    const supabase = createClient();
+    const { error } = await supabase.from("photos").update({ is_public: next }).eq("id", p.id);
+    setTogglingPublic(null);
+    if (error) {
+      setPhotos((prev) => prev.map((x) => (x.id === p.id ? { ...x, is_public: !next } : x)));
+      toast.error("Opslaan mislukt", { description: error.message });
+      return;
+    }
+    toast.success(next ? "Foto is nu publiek zichtbaar" : "Foto is weer privé");
   }
 
   async function handleDelete(p: Photo) {
@@ -264,19 +286,44 @@ export function PhotoboothView({ weddingId, initial, noteLabels, taskLabels }: P
                               <span className="truncate">{src.label}</span>
                             </span>
                           )}
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(p)}
-                            disabled={deleting === p.id}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                            aria-label="Verwijder foto"
-                          >
-                            {deleting === p.id ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                              <X className="h-3 w-3" />
-                            )}
-                          </button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {p.source_type === "booth" ? (
+                              <button
+                                type="button"
+                                onClick={() => togglePublic(p)}
+                                disabled={togglingPublic === p.id}
+                                className={cn(
+                                  "transition-opacity",
+                                  p.is_public
+                                    ? "text-primary"
+                                    : "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary"
+                                )}
+                                aria-label={p.is_public ? "Maak privé" : "Maak publiek"}
+                                title={p.is_public ? "Zichtbaar op publieke site — klik om privé te maken" : "Maak zichtbaar op publieke site & RSVP"}
+                              >
+                                {togglingPublic === p.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : p.is_public ? (
+                                  <Globe2 className="h-3 w-3" />
+                                ) : (
+                                  <Lock className="h-3 w-3" />
+                                )}
+                              </button>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(p)}
+                              disabled={deleting === p.id}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                              aria-label="Verwijder foto"
+                            >
+                              {deleting === p.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <X className="h-3 w-3" />
+                              )}
+                            </button>
+                          </div>
                         </div>
                         <p className="text-[10px] text-muted-foreground">
                           {formatDateNL(p.uploaded_at)}

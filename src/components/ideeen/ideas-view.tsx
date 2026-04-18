@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Heart, Loader2, Search, Globe2 } from "lucide-react";
+import { Heart, Loader2, Search, Globe2, ListPlus, Check } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,22 @@ import { THEMES } from "@/lib/themes";
 import { ALL_IDEAS } from "@/lib/ideas";
 import { IDEA_CATEGORIES, getIdeaCategoryMeta } from "@/lib/ideas-types";
 import type { IdeaCategory } from "@/lib/ideas-types";
-import type { WeddingTheme } from "@/lib/types";
+import type { TaskCategory, WeddingTheme } from "@/lib/types";
+
+// Koppel ideeën-categorieën aan de bestaande checklist-categorieën zodat een
+// idee-als-taak direct in de juiste filter valt.
+const IDEA_TO_TASK_CATEGORY: Record<IdeaCategory, TaskCategory> = {
+  decoratie: "overig",
+  bloemen: "bloemen",
+  locatie: "locatie",
+  kleding: "kleding",
+  papierwerk: "uitnodigingen",
+  eten: "catering",
+  taart: "catering",
+  muziek: "muziek",
+  foto: "fotografie",
+  details: "overig",
+};
 
 type Props = {
   weddingId: string;
@@ -33,6 +48,8 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
   const [allThemes, setAllThemes] = useState(false);
   const [savingTheme, setSavingTheme] = useState(false);
   const [pendingFavorite, setPendingFavorite] = useState<string | null>(null);
+  const [pendingTask, setPendingTask] = useState<string | null>(null);
+  const [addedAsTask, setAddedAsTask] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
 
   // Als onlyFavorites of allThemes aan staat, vervalt de thema-filter — zo zie je
@@ -91,6 +108,33 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
     setTheme(next);
     toast.success("Thema gewijzigd", { description: "Je hele app is nu in dit thema." });
     startTransition(() => router.refresh());
+  }
+
+  async function addIdeaAsTask(idea: (typeof ALL_IDEAS)[number]) {
+    setPendingTask(idea.id);
+    const supabase = createClient();
+    const { error } = await supabase.from("checklist_items").insert({
+      wedding_id: weddingId,
+      title: idea.title,
+      description: idea.description,
+      category: IDEA_TO_TASK_CATEGORY[idea.category] ?? "overig",
+      phase: "een_tot_drie_maanden",
+      is_custom: true,
+      sort_order: 9999,
+    });
+    setPendingTask(null);
+    if (error) {
+      toast.error("Toevoegen mislukt", { description: error.message });
+      return;
+    }
+    setAddedAsTask((prev) => {
+      const next = new Set(prev);
+      next.add(idea.id);
+      return next;
+    });
+    toast.success("Idee toegevoegd als taak", {
+      description: "Terug te vinden in de checklist onder jullie eigen taken.",
+    });
   }
 
   async function toggleFavorite(ideaId: string) {
@@ -285,22 +329,45 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
                         </Badge>
                       ) : null}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => toggleFavorite(idea.id)}
-                      disabled={busy}
-                      aria-label={fav ? "Verwijder uit favorieten" : "Voeg toe aan favorieten"}
-                      className={cn(
-                        "rounded-full p-1.5 transition-colors",
-                        fav ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"
-                      )}
-                    >
-                      {busy ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Heart className={cn("h-4 w-4", fav && "fill-current")} />
-                      )}
-                    </button>
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        type="button"
+                        onClick={() => addIdeaAsTask(idea)}
+                        disabled={pendingTask === idea.id || addedAsTask.has(idea.id)}
+                        aria-label="Voeg toe als taak"
+                        title={addedAsTask.has(idea.id) ? "Toegevoegd als taak" : "Voeg toe als taak"}
+                        className={cn(
+                          "rounded-full p-1.5 transition-colors",
+                          addedAsTask.has(idea.id)
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-primary"
+                        )}
+                      >
+                        {pendingTask === idea.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : addedAsTask.has(idea.id) ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <ListPlus className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleFavorite(idea.id)}
+                        disabled={busy}
+                        aria-label={fav ? "Verwijder uit favorieten" : "Voeg toe aan favorieten"}
+                        className={cn(
+                          "rounded-full p-1.5 transition-colors",
+                          fav ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"
+                        )}
+                      >
+                        {busy ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Heart className={cn("h-4 w-4", fav && "fill-current")} />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <h3 className="font-serif text-base font-semibold leading-snug">{idea.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{idea.description}</p>

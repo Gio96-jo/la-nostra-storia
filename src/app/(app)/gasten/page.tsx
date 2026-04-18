@@ -13,5 +13,13 @@ export default async function GuestsPage() {
     .eq("wedding_id", wedding.id)
     .order("created_at", { ascending: false });
 
-  return <GuestsView weddingId={wedding.id} initialGuests={guests ?? []} />;
+  return (
+    <GuestsView
+      weddingId={wedding.id}
+      initialGuests={guests ?? []}
+      partnerOne={wedding.partner_one_name}
+      partnerTwo={wedding.partner_two_name}
+      weddingDate={wedding.wedding_date}
+    />
+  );
 }

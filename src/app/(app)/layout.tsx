@@ -15,8 +15,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="min-h-screen flex bg-background">
         <Sidebar partnerNames={partnerNames} />
         <div className="flex-1 min-w-0 flex flex-col">
-          <Topbar email={user.email ?? ""} partnerNames={partnerNames} />
-          <DesktopUserMenu email={user.email ?? ""} />
+          <Topbar email={user.email ?? ""} partnerNames={partnerNames} weddingId={wedding!.id} />
+          <DesktopUserMenu email={user.email ?? ""} weddingId={wedding!.id} />
           <main className="flex-1 container py-6 sm:py-8 pb-24 lg:pb-8">
             {children}
           </main>

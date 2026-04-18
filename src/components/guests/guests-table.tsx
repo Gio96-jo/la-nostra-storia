@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Check, Link2, Mail, MoreVertical, Moon, Pencil, Phone, Sun, Trash2 } from "lucide-react";
+import { Check, Link2, Mail, MailPlus, MoreVertical, Moon, Pencil, Phone, Sun, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,10 +16,52 @@ interface Props {
   onEdit: (g: Guest) => void;
   onDelete: (id: string) => void;
   onStatusChange: (id: string, status: RsvpStatus) => void;
+  partnerOne: string;
+  partnerTwo: string;
+  weddingDate: string;
 }
 
-export function GuestsTable({ guests, onEdit, onDelete, onStatusChange }: Props) {
+function formatDateNL(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString("nl-BE", { day: "numeric", month: "long", year: "numeric" });
+  } catch {
+    return iso;
+  }
+}
+
+export function GuestsTable({
+  guests, onEdit, onDelete, onStatusChange, partnerOne, partnerTwo, weddingDate,
+}: Props) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  function rsvpUrl(g: Guest) {
+    if (!g.rsvp_token) return null;
+    const base =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL ?? "";
+    return `${base}/rsvp/${g.rsvp_token}`;
+  }
+
+  function emailRsvp(g: Guest) {
+    const url = rsvpUrl(g);
+    if (!url) {
+      toast.error("Deze gast heeft nog geen RSVP-token.");
+      return;
+    }
+    if (!g.email) {
+      toast.error("Geen e-mailadres bekend voor deze gast.");
+      return;
+    }
+    const subject = `Uitnodiging bruiloft ${partnerOne} & ${partnerTwo}`;
+    const body =
+      `Hey ${g.first_name},\n\n` +
+      `We trouwen op ${formatDateNL(weddingDate)} en zouden het super vinden als je erbij bent!\n\n` +
+      `Laat ons via jouw persoonlijke RSVP-link weten of je komt:\n${url}\n\n` +
+      `Tot snel,\n${partnerOne} & ${partnerTwo}`;
+    const mailto = `mailto:${encodeURIComponent(g.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+  }
 
   async function copyRsvpLink(g: Guest) {
     if (!g.rsvp_token) {
@@ -131,6 +173,12 @@ export function GuestsTable({ guests, onEdit, onDelete, onStatusChange }: Props)
                           <Link2 className="h-4 w-4" />
                         )}
                         {copiedId === g.id ? "Gekopieerd" : "Kopieer RSVP-link"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => emailRsvp(g)}
+                        disabled={!g.rsvp_token || !g.email}
+                      >
+                        <MailPlus className="h-4 w-4" /> Verstuur RSVP via mail
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive" onClick={() => onDelete(g.id)}>

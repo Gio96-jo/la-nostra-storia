@@ -5,6 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CountdownHero } from "@/components/dashboard/countdown-hero";
+import { CouplePhotoCard } from "@/components/dashboard/couple-photo-card";
+import { WeddingQuoteCard } from "@/components/dashboard/wedding-quote-card";
 import { formatCurrency, formatDateNL } from "@/lib/utils";
 import { ArrowRight, ListChecks, Wallet, Users, Building2, Calendar, Star, ExternalLink, Flame } from "lucide-react";
 import { CATEGORIES, getCategoryMeta } from "@/lib/constants";
@@ -75,6 +77,13 @@ export default async function DashboardPage() {
         partnerTwo={wedding.partner_two_name}
         venueName={wedding.venue_name}
         city={wedding.city}
+      />
+
+      <CouplePhotoCard
+        weddingId={wedding.id}
+        initialPath={wedding.couple_photo_path}
+        partnerOne={wedding.partner_one_name}
+        partnerTwo={wedding.partner_two_name}
       />
 
       {/* Belangrijkste notitie */}
@@ -265,6 +274,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <WeddingQuoteCard />
 
       {/* Categories quick links */}
       <Card>

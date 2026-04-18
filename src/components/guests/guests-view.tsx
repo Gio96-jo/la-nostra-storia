@@ -18,9 +18,12 @@ import { GuestDialog } from "./guest-dialog";
 interface Props {
   weddingId: string;
   initialGuests: Guest[];
+  partnerOne: string;
+  partnerTwo: string;
+  weddingDate: string;
 }
 
-export function GuestsView({ weddingId, initialGuests }: Props) {
+export function GuestsView({ weddingId, initialGuests, partnerOne, partnerTwo, weddingDate }: Props) {
   const [guests, setGuests] = useState<Guest[]>(initialGuests);
   const [search, setSearch] = useState("");
   const [filterRelation, setFilterRelation] = useState<"all" | GuestRelation>("all");
@@ -173,6 +176,9 @@ export function GuestsView({ weddingId, initialGuests }: Props) {
               onEdit={(g) => { setEditing(g); setDialogOpen(true); }}
               onDelete={deleteGuest}
               onStatusChange={quickStatus}
+              partnerOne={partnerOne}
+              partnerTwo={partnerTwo}
+              weddingDate={weddingDate}
             />
           )}
         </CardContent>

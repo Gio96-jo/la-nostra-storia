@@ -69,6 +69,7 @@ export interface Wedding {
   public_rsvp_deadline: string | null;
   public_hero_subtitle: string | null;
   public_address: string | null;
+  couple_photo_path: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -190,6 +191,7 @@ export interface Photo {
   size_bytes: number | null;
   width: number | null;
   height: number | null;
+  is_public: boolean;
   uploaded_at: string;
 }
 
