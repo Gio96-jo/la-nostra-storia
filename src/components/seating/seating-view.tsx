@@ -197,7 +197,7 @@ export function SeatingView({ weddingId, initialTables, initialGuests }: Props) 
         <div>
           {tables.length === 0 ? (
             <EmptyState
-              icon={<Armchair className="h-10 w-10 text-primary/60" />}
+              icon={Armchair}
               title="Nog geen tafels"
               description="Maak je eerste tafel aan en sleep gasten erop."
               action={
