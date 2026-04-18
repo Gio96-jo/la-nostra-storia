@@ -23,6 +23,7 @@ interface Props {
   onDueDateChange: (date: string | null) => void;
   onDelete: () => void;
   onNotesSave: (notes: string) => void;
+  flash?: boolean;
 }
 
 const STATUS_ICON: Record<ChecklistStatus, typeof Circle> = {
@@ -38,7 +39,7 @@ function nextStatus(s: ChecklistStatus): ChecklistStatus {
 }
 
 export function ChecklistItemRow({
-  item, weddingId, photos, onPhotosChange, onStatusChange, onUrgentToggle, onHighlightToggle, onDueDateChange, onDelete, onNotesSave,
+  item, weddingId, photos, onPhotosChange, onStatusChange, onUrgentToggle, onHighlightToggle, onDueDateChange, onDelete, onNotesSave, flash,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState(item.notes ?? "");
@@ -51,11 +52,13 @@ export function ChecklistItemRow({
 
   return (
     <div
+      id={`task-${item.id}`}
       className={cn(
         "rounded-lg border bg-card transition-colors",
         item.status === "done" && "bg-muted/40 opacity-70",
         item.is_highlighted && item.status !== "done" && !item.is_urgent && "border-amber-300 bg-amber-50/60",
-        item.is_urgent && item.status !== "done" && "border-destructive/60 bg-destructive/5"
+        item.is_urgent && item.status !== "done" && "border-red-300 bg-red-50/70",
+        flash && "ring-2 ring-primary ring-offset-2"
       )}
     >
       <div className="flex items-start gap-3 p-4">

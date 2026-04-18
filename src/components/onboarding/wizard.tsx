@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/lib/supabase/client";
 import { APP_NAME } from "@/lib/constants";
-import type { Wedding } from "@/lib/types";
+import { THEMES } from "@/lib/themes";
+import { cn } from "@/lib/utils";
+import type { Wedding, WeddingTheme } from "@/lib/types";
 
 interface State {
   partner_one_name: string;
@@ -20,9 +22,10 @@ interface State {
   estimated_guest_count: string;
   venue_name: string;
   city: string;
+  theme: WeddingTheme;
 }
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 export function OnboardingWizard({ userId, existing }: { userId: string; existing: Wedding | null }) {
   const router = useRouter();
@@ -36,6 +39,7 @@ export function OnboardingWizard({ userId, existing }: { userId: string; existin
     estimated_guest_count: existing?.estimated_guest_count?.toString() ?? "",
     venue_name: existing?.venue_name ?? "",
     city: existing?.city ?? "",
+    theme: (existing?.theme as WeddingTheme | undefined) ?? "romantisch_blush",
   });
 
   const set = <K extends keyof State>(k: K, v: State[K]) => setS((p) => ({ ...p, [k]: v }));
@@ -71,6 +75,7 @@ export function OnboardingWizard({ userId, existing }: { userId: string; existin
       estimated_guest_count: s.estimated_guest_count ? Number(s.estimated_guest_count) : null,
       venue_name: s.venue_name || null,
       city: s.city || null,
+      theme: s.theme,
       onboarding_completed: true,
     };
 
@@ -157,6 +162,52 @@ export function OnboardingWizard({ userId, existing }: { userId: string; existin
           )}
 
           {step === 3 && (
+            <div className="space-y-5">
+              <div>
+                <h1 className="font-serif text-2xl font-semibold">Kies jullie thema</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Dit bepaalt de kleuren en sfeer van jullie app. Je kunt het later altijd wijzigen via Instellingen of de Ideeën-pagina.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {THEMES.map((t) => {
+                  const active = s.theme === t.value;
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => set("theme", t.value)}
+                      className={cn(
+                        "group rounded-xl border p-3 text-left transition-all",
+                        active
+                          ? "border-primary ring-2 ring-primary/30 bg-primary/5"
+                          : "border-border hover:border-primary/40 hover:bg-accent/20"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="h-5 w-5 rounded-full border border-border/50"
+                          style={{ background: t.preview.primary }}
+                        />
+                        <span
+                          className="h-5 w-5 rounded-full border border-border/50"
+                          style={{ background: t.preview.accent }}
+                        />
+                        <span
+                          className="h-5 w-5 rounded-full border border-border/50"
+                          style={{ background: t.preview.bg }}
+                        />
+                      </div>
+                      <p className="font-serif text-sm font-semibold leading-tight">{t.label}</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground leading-snug">{t.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
             <div className="space-y-5">
               <div>
                 <h1 className="font-serif text-2xl font-semibold">Locatie (optioneel)</h1>

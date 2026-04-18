@@ -37,6 +37,8 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [website, setWebsite] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
+  const [isEveningOnly, setIsEveningOnly] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [hits, setHits] = useState<GeoHit[]>([]);
@@ -52,6 +54,8 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
       setLat(editing?.lat ?? null);
       setLng(editing?.lng ?? null);
       setWebsite(editing?.website ?? "");
+      setIsPublic(editing?.is_public ?? false);
+      setIsEveningOnly(editing?.is_evening_only ?? false);
       setHits([]);
     }
   }, [open, editing]);
@@ -107,6 +111,8 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
       lat,
       lng,
       website: website.trim() || null,
+      is_public: isPublic,
+      is_evening_only: isEveningOnly,
     };
     const { data, error } = editing
       ? await supabase.from("day_schedule_items").update(payload).eq("id", editing.id).select().single()
@@ -228,6 +234,46 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
             />
+          </div>
+
+          <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Publieke site
+            </p>
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+              />
+              <span>
+                Tonen op publieke bruiloftssite & in RSVP-links
+                <span className="block text-xs text-muted-foreground">
+                  Gasten zien dit onderdeel op jullie publieke pagina.
+                </span>
+              </span>
+            </label>
+            <label
+              className={`flex items-start gap-2 text-sm cursor-pointer ${
+                !isPublic ? "opacity-50" : ""
+              }`}
+            >
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                checked={isEveningOnly}
+                disabled={!isPublic}
+                onChange={(e) => setIsEveningOnly(e.target.checked)}
+              />
+              <span>
+                Ook voor avondgasten
+                <span className="block text-xs text-muted-foreground">
+                  Aanvinken als avond-only-gasten dit onderdeel óók mogen zien. Laat uit als dit
+                  alleen voor hele-dag-gasten is.
+                </span>
+              </span>
+            </label>
           </div>
 
           <DialogFooter>

@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import { createClient } from "@/lib/supabase/client";
 import type { Wedding } from "@/lib/types";
+import { PublicWebsiteCard } from "./public-website-card";
 
 export function SettingsView({ wedding, email }: { wedding: Wedding; email: string }) {
   const router = useRouter();
@@ -186,6 +187,8 @@ export function SettingsView({ wedding, email }: { wedding: Wedding; email: stri
             </p>
           </CardContent>
         </Card>
+
+        <PublicWebsiteCard wedding={wedding} />
 
         <Card>
           <CardHeader>

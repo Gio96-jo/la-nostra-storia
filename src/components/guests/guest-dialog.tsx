@@ -14,7 +14,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GUEST_RELATIONS, RSVP_STATUSES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
-import type { Guest, GuestRelation, RsvpStatus } from "@/lib/types";
+import type { Guest, GuestInviteType, GuestRelation, RsvpStatus } from "@/lib/types";
 
 interface Props {
   open: boolean;
@@ -34,6 +34,7 @@ export function GuestDialog({ open, onOpenChange, weddingId, editing, onSaved }:
   const [tableGroup, setTableGroup] = useState("");
   const [dietary, setDietary] = useState("");
   const [plusOne, setPlusOne] = useState(false);
+  const [inviteType, setInviteType] = useState<GuestInviteType>("full_day");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -48,6 +49,7 @@ export function GuestDialog({ open, onOpenChange, weddingId, editing, onSaved }:
       setTableGroup(editing?.table_group ?? "");
       setDietary(editing?.dietary_wishes ?? "");
       setPlusOne(editing?.plus_one ?? false);
+      setInviteType(editing?.invite_type ?? "full_day");
       setNotes(editing?.notes ?? "");
     }
   }, [open, editing]);
@@ -68,6 +70,7 @@ export function GuestDialog({ open, onOpenChange, weddingId, editing, onSaved }:
       table_group: tableGroup.trim() || null,
       dietary_wishes: dietary.trim() || null,
       plus_one: plusOne,
+      invite_type: inviteType,
       notes: notes.trim() || null,
     };
     const { data, error } = editing
@@ -137,9 +140,24 @@ export function GuestDialog({ open, onOpenChange, weddingId, editing, onSaved }:
               <Input id="diet" placeholder="Bijv. vegetarisch, glutenvrij" value={dietary} onChange={(e) => setDietary(e.target.value)} />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Checkbox id="p1" checked={plusOne} onCheckedChange={(v) => setPlusOne(!!v)} />
-            <Label htmlFor="p1" className="cursor-pointer">Komt met +1</Label>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Uitnodigingstype</Label>
+              <Select value={inviteType} onValueChange={(v) => setInviteType(v as GuestInviteType)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full_day">Hele dag</SelectItem>
+                  <SelectItem value="evening_only">Alleen avondfeest</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Avondgasten zien op hun RSVP-link alleen avond-onderdelen.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-7">
+              <Checkbox id="p1" checked={plusOne} onCheckedChange={(v) => setPlusOne(!!v)} />
+              <Label htmlFor="p1" className="cursor-pointer">Komt met +1</Label>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="notes">Notities</Label>

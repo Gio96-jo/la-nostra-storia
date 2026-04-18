@@ -47,6 +47,8 @@ export type WeddingTheme =
   | "tuinfeest_botanical"
   | "mediterraan_italiaans";
 
+export type GuestInviteType = "full_day" | "evening_only";
+
 export interface Wedding {
   id: string;
   owner_id: string;
@@ -59,6 +61,14 @@ export interface Wedding {
   city: string | null;
   onboarding_completed: boolean;
   theme: WeddingTheme;
+  public_enabled: boolean;
+  public_slug: string | null;
+  public_story: string | null;
+  public_menu: string | null;
+  public_dress_code: string | null;
+  public_rsvp_deadline: string | null;
+  public_hero_subtitle: string | null;
+  public_address: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -126,6 +136,10 @@ export interface Guest {
   rsvp_status: RsvpStatus;
   dietary_wishes: string | null;
   plus_one: boolean;
+  plus_one_name: string | null;
+  invite_type: GuestInviteType;
+  rsvp_token: string | null;
+  rsvp_submitted_at: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -156,6 +170,8 @@ export interface DayScheduleItem {
   lat: number | null;
   lng: number | null;
   website: string | null;
+  is_public: boolean;
+  is_evening_only: boolean;
   sort_order: number;
   created_at: string;
   updated_at: string;

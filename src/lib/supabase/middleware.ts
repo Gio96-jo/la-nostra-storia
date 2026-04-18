@@ -9,6 +9,8 @@ const PUBLIC_PATHS = [
   "/reset-wachtwoord",
   "/nieuwe-wachtwoord",
   "/auth/callback",
+  "/s",      // publieke bruiloftssites: /s/[slug]
+  "/rsvp",   // RSVP-links voor gasten: /rsvp/[token]
 ];
 
 const isPublic = (path: string) =>

@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Heart, Loader2, Search } from "lucide-react";
+import { Heart, Loader2, Search, Globe2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,14 +30,19 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set(initialFavorites));
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [allThemes, setAllThemes] = useState(false);
   const [savingTheme, setSavingTheme] = useState(false);
   const [pendingFavorite, setPendingFavorite] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
+  // Als onlyFavorites of allThemes aan staat, vervalt de thema-filter — zo zie je
+  // je favorieten uit alle thema's terug in je huidige thema.
+  const crossTheme = allThemes || onlyFavorites;
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ALL_IDEAS.filter((idea) => {
-      if (idea.theme !== theme) return false;
+      if (!crossTheme && idea.theme !== theme) return false;
       if (category !== "alle" && idea.category !== category) return false;
       if (onlyFavorites && !favorites.has(idea.id)) return false;
       if (q) {
@@ -46,22 +51,29 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
       }
       return true;
     });
-  }, [theme, category, query, onlyFavorites, favorites]);
+  }, [theme, category, query, onlyFavorites, favorites, crossTheme]);
 
   const countsByCategory = useMemo(() => {
     const map: Record<string, number> = { alle: 0 };
     ALL_IDEAS.forEach((idea) => {
-      if (idea.theme !== theme) return;
+      if (!crossTheme && idea.theme !== theme) return;
+      if (onlyFavorites && !favorites.has(idea.id)) return;
       map.alle = (map.alle ?? 0) + 1;
       map[idea.category] = (map[idea.category] ?? 0) + 1;
     });
     return map;
-  }, [theme]);
+  }, [theme, crossTheme, onlyFavorites, favorites]);
 
-  const favoritesInTheme = useMemo(
-    () => ALL_IDEAS.filter((i) => i.theme === theme && favorites.has(i.id)).length,
-    [theme, favorites]
+  const favoritesTotal = useMemo(
+    () => ALL_IDEAS.filter((i) => favorites.has(i.id)).length,
+    [favorites]
   );
+
+  const themeMetaByValue = useMemo(() => {
+    const m = new Map<WeddingTheme, (typeof THEMES)[number]>();
+    THEMES.forEach((t) => m.set(t.value, t));
+    return m;
+  }, []);
 
   async function switchTheme(next: WeddingTheme) {
     if (next === theme) return;
@@ -119,7 +131,7 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
     <div>
       <PageHeader
         title="Ideeën"
-        description={`Inspiratie voor jullie bruiloft — 1000 ideeën, gekoppeld aan jullie thema. ${favoritesInTheme > 0 ? `Favorieten: ${favoritesInTheme}` : ""}`}
+        description={`Inspiratie voor jullie bruiloft — 1000 ideeën, gekoppeld aan jullie thema. ${favoritesTotal > 0 ? `Favorieten: ${favoritesTotal}` : ""}`}
       />
 
       {/* Theme switcher */}
@@ -173,16 +185,29 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
             className="pl-9"
           />
         </div>
-        <Button
-          type="button"
-          size="sm"
-          variant={onlyFavorites ? "default" : "outline"}
-          onClick={() => setOnlyFavorites((v) => !v)}
-          className="gap-1.5"
-        >
-          <Heart className={cn("h-4 w-4", onlyFavorites && "fill-current")} />
-          Alleen favorieten
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={allThemes ? "default" : "outline"}
+            onClick={() => setAllThemes((v) => !v)}
+            className="gap-1.5"
+            title="Bekijk ideeën uit alle thema's — je favorieten blijven bewaard, ook als je later van thema wisselt."
+          >
+            <Globe2 className="h-4 w-4" />
+            Alle thema&apos;s
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={onlyFavorites ? "default" : "outline"}
+            onClick={() => setOnlyFavorites((v) => !v)}
+            className="gap-1.5"
+          >
+            <Heart className={cn("h-4 w-4", onlyFavorites && "fill-current")} />
+            Alleen favorieten
+          </Button>
+        </div>
       </div>
 
       {/* Category pills */}
@@ -234,6 +259,8 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
             const fav = favorites.has(idea.id);
             const busy = pendingFavorite === idea.id;
             const meta = getIdeaCategoryMeta(idea.category);
+            const ideaTheme = themeMetaByValue.get(idea.theme);
+            const showThemeBadge = crossTheme && idea.theme !== theme;
             return (
               <Card
                 key={idea.id}
@@ -244,9 +271,20 @@ export function IdeasView({ weddingId, initialTheme, initialFavorites }: Props) 
               >
                 <CardContent className="pt-4 pb-3 space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <Badge variant="secondary" className="text-[10px]">
-                      {meta.emoji} {meta.label}
-                    </Badge>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge variant="secondary" className="text-[10px]">
+                        {meta.emoji} {meta.label}
+                      </Badge>
+                      {showThemeBadge && ideaTheme ? (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ background: ideaTheme.preview.primary }}
+                          />
+                          {ideaTheme.label}
+                        </Badge>
+                      ) : null}
+                    </div>
                     <button
                       type="button"
                       onClick={() => toggleFavorite(idea.id)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Printer, Search, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,17 +20,36 @@ interface Props {
   initialItems: ChecklistItem[];
   initialPhotos?: Photo[];
   initialCat?: "all" | TaskCategory;
+  highlightId?: string;
 }
 
 type StatusFilter = "all" | "open" | "in_progress" | "done";
 
-export function ChecklistView({ weddingId, initialItems, initialPhotos = [], initialCat = "all" }: Props) {
+export function ChecklistView({ weddingId, initialItems, initialPhotos = [], initialCat = "all", highlightId }: Props) {
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<"all" | TaskCategory>(initialCat);
   const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
   const [adding, setAdding] = useState(false);
+  const [flashId, setFlashId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!highlightId) return;
+    // Make sure the highlighted item is not filtered out
+    setFilterCat("all");
+    setFilterStatus("all");
+    setSearch("");
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(`task-${highlightId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setFlashId(highlightId);
+        window.setTimeout(() => setFlashId(null), 2500);
+      }
+    }, 100);
+    return () => window.clearTimeout(t);
+  }, [highlightId]);
 
   function photosForTask(taskId: string) {
     return photos.filter((p) => p.source_id === taskId);
@@ -236,6 +255,7 @@ export function ChecklistView({ weddingId, initialItems, initialPhotos = [], ini
                 onDueDateChange={(d) => changeDueDate(item.id, d)}
                 onDelete={() => deleteItem(item.id)}
                 onNotesSave={(n) => saveNotes(item.id, n)}
+                flash={flashId === item.id}
               />
             ))}
           </div>
@@ -267,6 +287,7 @@ export function ChecklistView({ weddingId, initialItems, initialPhotos = [], ini
                     onDueDateChange={(d) => changeDueDate(item.id, d)}
                     onDelete={() => deleteItem(item.id)}
                     onNotesSave={(n) => saveNotes(item.id, n)}
+                    flash={flashId === item.id}
                   />
                 ))}
               </div>

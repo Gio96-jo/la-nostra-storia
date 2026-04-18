@@ -8,7 +8,7 @@ export const metadata = { title: "Checklist" };
 export default async function ChecklistPage({
   searchParams,
 }: {
-  searchParams: { cat?: string };
+  searchParams: { cat?: string; highlight?: string };
 }) {
   const { wedding, supabase } = await getCurrentWedding();
   if (!wedding) return null;
@@ -40,6 +40,7 @@ export default async function ChecklistPage({
       initialItems={items ?? []}
       initialPhotos={(photos ?? []) as Photo[]}
       initialCat={initialCat}
+      highlightId={searchParams.highlight}
     />
   );
 }

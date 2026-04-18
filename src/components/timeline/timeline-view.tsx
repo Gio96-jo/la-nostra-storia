@@ -250,7 +250,7 @@ export function TimelineView({ weddingDate, items }: Props) {
                             const cat = getCategoryMeta(item.category);
                             return (
                               <Link
-                                href="/checklist"
+                                href={`/checklist?highlight=${item.id}`}
                                 key={item.id}
                                 className="flex items-start gap-3 rounded-lg border bg-card p-3 hover:border-primary/40 hover:bg-accent/20 transition-colors"
                               >
