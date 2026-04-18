@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CountdownHero } from "@/components/dashboard/countdown-hero";
 import { formatCurrency, formatDateNL } from "@/lib/utils";
-import { ArrowRight, ListChecks, Wallet, Users, Building2, Calendar } from "lucide-react";
+import { ArrowRight, ListChecks, Wallet, Users, Building2, Calendar, Star, ExternalLink } from "lucide-react";
 import { CATEGORIES, getCategoryMeta } from "@/lib/constants";
 
 export const metadata = { title: "Dashboard" };
@@ -28,6 +28,7 @@ export default async function DashboardPage() {
     guestRows,
     suppliersCount,
     recentActivity,
+    importantNote,
   ] = await Promise.all([
     supabase.from("checklist_items").select("id", { count: "exact", head: true }).eq("wedding_id", wedding.id),
     supabase.from("checklist_items").select("id", { count: "exact", head: true }).eq("wedding_id", wedding.id).eq("is_completed", true),
@@ -42,6 +43,8 @@ export default async function DashboardPage() {
     supabase.from("suppliers").select("id", { count: "exact", head: true }).eq("wedding_id", wedding.id),
     supabase.from("checklist_items").select("title, updated_at, is_completed")
       .eq("wedding_id", wedding.id).order("updated_at", { ascending: false }).limit(5),
+    supabase.from("notes").select("id, title, content, link_url")
+      .eq("wedding_id", wedding.id).eq("is_important", true).maybeSingle(),
   ]);
 
   const totalTasks = checklistCount.count ?? 0;
@@ -69,6 +72,42 @@ export default async function DashboardPage() {
         venueName={wedding.venue_name}
         city={wedding.city}
       />
+
+      {/* Belangrijkste notitie */}
+      {importantNote.data ? (
+        <Card className="border-amber-400/50 bg-amber-50/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Star className="h-4 w-4 text-amber-500" fill="currentColor" />
+                Belangrijkste notitie
+              </CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/notities">Bekijk <ArrowRight className="h-3 w-3" /></Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <h3 className="font-serif text-xl font-semibold mb-1">{importantNote.data.title}</h3>
+            {importantNote.data.content ? (
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-4">
+                {importantNote.data.content}
+              </p>
+            ) : null}
+            {importantNote.data.link_url ? (
+              <a
+                href={importantNote.data.link_url}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline truncate max-w-full"
+              >
+                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{importantNote.data.link_url.replace(/^https?:\/\//, "")}</span>
+              </a>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* Progress */}
       <Card>

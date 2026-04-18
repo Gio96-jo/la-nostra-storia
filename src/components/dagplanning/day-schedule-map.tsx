@@ -66,7 +66,7 @@ export function DayScheduleMap({ items }: Props) {
   const center = points[0];
 
   return (
-    <div className="h-80 sm:h-96 w-full">
+    <div className="h-80 sm:h-96 w-full isolate relative z-0">
       <MapContainer
         center={center}
         zoom={13}

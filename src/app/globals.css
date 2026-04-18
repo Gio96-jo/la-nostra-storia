@@ -111,3 +111,13 @@
   body { background: white; }
   .print-break-inside-avoid { break-inside: avoid; }
 }
+
+/* Leaflet: zorg dat kaartcontrols nooit over modals/dialogs vallen */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1 !important;
+}
+.leaflet-container {
+  z-index: 0;
+}

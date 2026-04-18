@@ -126,6 +126,8 @@ export interface Note {
   content: string | null;
   link_url: string | null;
   pinned: boolean;
+  sort_order: number;
+  is_important: boolean;
   created_at: string;
   updated_at: string;
 }

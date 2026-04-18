@@ -18,14 +18,15 @@ import { createClient } from "@/lib/supabase/client";
 interface Props {
   weddingId: string;
   initialItems: ChecklistItem[];
+  initialCat?: "all" | TaskCategory;
 }
 
 type StatusFilter = "all" | "open" | "in_progress" | "done";
 
-export function ChecklistView({ weddingId, initialItems }: Props) {
+export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: Props) {
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [search, setSearch] = useState("");
-  const [filterCat, setFilterCat] = useState<"all" | TaskCategory>("all");
+  const [filterCat, setFilterCat] = useState<"all" | TaskCategory>(initialCat);
   const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
   const [adding, setAdding] = useState(false);
 

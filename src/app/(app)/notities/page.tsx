@@ -11,7 +11,7 @@ export default async function NotesPage() {
     .from("notes")
     .select("*")
     .eq("wedding_id", wedding.id)
-    .order("pinned", { ascending: false })
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
   return <NotesView weddingId={wedding.id} initial={data ?? []} />;
