@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CountdownHero } from "@/components/dashboard/countdown-hero";
 import { formatCurrency, formatDateNL } from "@/lib/utils";
-import { ArrowRight, ListChecks, Wallet, Users, Building2, Calendar, Star, ExternalLink } from "lucide-react";
+import { ArrowRight, ListChecks, Wallet, Users, Building2, Calendar, Star, ExternalLink, Flame } from "lucide-react";
 import { CATEGORIES, getCategoryMeta } from "@/lib/constants";
 
 export const metadata = { title: "Dashboard" };
@@ -24,6 +24,7 @@ export default async function DashboardPage() {
     checklistDone,
     monthTasks,
     upcomingTasks,
+    urgentTasks,
     budgetItems,
     guestRows,
     suppliersCount,
@@ -38,6 +39,9 @@ export default async function DashboardPage() {
     supabase.from("checklist_items").select("*")
       .eq("wedding_id", wedding.id).eq("is_completed", false)
       .gte("due_date", todayIso).order("due_date", { ascending: true }).limit(5),
+    supabase.from("checklist_items").select("id, title, category, due_date, status")
+      .eq("wedding_id", wedding.id).eq("is_urgent", true).neq("status", "done")
+      .order("due_date", { ascending: true, nullsFirst: false }).limit(6),
     supabase.from("budget_items").select("estimated_cost, actual_cost, is_paid, category").eq("wedding_id", wedding.id),
     supabase.from("guests").select("rsvp_status").eq("wedding_id", wedding.id),
     supabase.from("suppliers").select("id", { count: "exact", head: true }).eq("wedding_id", wedding.id),
@@ -105,6 +109,49 @@ export default async function DashboardPage() {
                 <span className="truncate">{importantNote.data.link_url.replace(/^https?:\/\//, "")}</span>
               </a>
             ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {/* Urgente to do's */}
+      {(urgentTasks.data ?? []).length > 0 ? (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Flame className="h-5 w-5 text-destructive" fill="currentColor" />
+                Meest belangrijke to do
+              </CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/checklist">Bekijk alles <ArrowRight className="h-3 w-3" /></Link>
+              </Button>
+            </div>
+            <CardDescription>Taken die als urgent zijn gemarkeerd.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {(urgentTasks.data ?? []).map((t) => {
+              const cat = getCategoryMeta(t.category);
+              return (
+                <Link
+                  key={t.id}
+                  href="/checklist"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-destructive/30 bg-background/60 p-3 hover:bg-background transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">{t.title}</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <Badge className={cat.color}>{cat.label}</Badge>
+                      {t.due_date ? (
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="h-3 w-3" /> {formatDateNL(t.due_date)}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <Flame className="h-4 w-4 text-destructive shrink-0 mt-0.5" fill="currentColor" />
+                </Link>
+              );
+            })}
           </CardContent>
         </Card>
       ) : null}

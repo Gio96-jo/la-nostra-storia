@@ -11,8 +11,7 @@ export default async function TimelinePage() {
     .from("checklist_items")
     .select("*")
     .eq("wedding_id", wedding.id)
-    .not("due_date", "is", null)
-    .order("due_date", { ascending: true });
+    .order("sort_order", { ascending: true });
 
   return <TimelineView weddingDate={wedding.wedding_date} items={items ?? []} />;
 }

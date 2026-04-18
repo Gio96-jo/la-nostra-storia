@@ -37,6 +37,16 @@ export type SupplierStatus =
 
 export type ChecklistStatus = "open" | "in_progress" | "done";
 
+export type WeddingTheme =
+  | "klassiek_elegant"
+  | "romantisch_blush"
+  | "boho_natuurlijk"
+  | "rustiek_landelijk"
+  | "modern_minimalistisch"
+  | "vintage_retro"
+  | "tuinfeest_botanical"
+  | "mediterraan_italiaans";
+
 export interface Wedding {
   id: string;
   owner_id: string;
@@ -48,6 +58,7 @@ export interface Wedding {
   venue_name: string | null;
   city: string | null;
   onboarding_completed: boolean;
+  theme: WeddingTheme;
   created_at: string;
   updated_at: string;
 }
@@ -67,6 +78,7 @@ export interface ChecklistItem {
   is_custom: boolean;
   status: ChecklistStatus;
   is_urgent: boolean;
+  is_highlighted: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -143,6 +155,7 @@ export interface DayScheduleItem {
   address: string | null;
   lat: number | null;
   lng: number | null;
+  website: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;

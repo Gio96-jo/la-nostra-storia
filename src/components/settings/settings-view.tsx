@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Moon, Sun } from "lucide-react";
+import { Check, Loader2, Moon, Palette, Sun } from "lucide-react";
+import { THEMES } from "@/lib/themes";
+import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +28,26 @@ export function SettingsView({ wedding, email }: { wedding: Wedding; email: stri
     city: wedding.city ?? "",
   });
   const [saving, setSaving] = useState(false);
+  const [themeValue, setThemeValue] = useState(wedding.theme);
+  const [savingTheme, setSavingTheme] = useState<string | null>(null);
+
+  async function saveTheme(value: typeof wedding.theme) {
+    if (value === themeValue) return;
+    setSavingTheme(value);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("weddings")
+      .update({ theme: value })
+      .eq("id", wedding.id);
+    setSavingTheme(null);
+    if (error) {
+      toast.error("Thema opslaan mislukt", { description: error.message });
+      return;
+    }
+    setThemeValue(value);
+    toast.success("Thema bijgewerkt");
+    router.refresh();
+  }
 
   async function save() {
     setSaving(true);
@@ -102,6 +124,66 @@ export function SettingsView({ wedding, email }: { wedding: Wedding; email: stri
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Opslaan"}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Palette className="h-5 w-5 text-primary" />
+              Thema & stijl
+            </CardTitle>
+            <CardDescription>
+              Kies een sfeer voor jullie bruiloftsplanner. Kleuren en lettertypes passen zich direct aan.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {THEMES.map((t) => {
+                const active = themeValue === t.value;
+                const saving = savingTheme === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => saveTheme(t.value)}
+                    disabled={!!savingTheme}
+                    className={cn(
+                      "relative rounded-xl border-2 p-3 text-left transition-all hover:shadow-md disabled:opacity-60",
+                      active ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"
+                    )}
+                  >
+                    <div
+                      className="h-16 w-full rounded-lg mb-2 flex items-center justify-end p-2 gap-1"
+                      style={{ background: t.preview.bg }}
+                    >
+                      <span
+                        className="h-4 w-4 rounded-full ring-1 ring-black/10"
+                        style={{ background: t.preview.primary }}
+                      />
+                      <span
+                        className="h-4 w-4 rounded-full ring-1 ring-black/10"
+                        style={{ background: t.preview.accent }}
+                      />
+                    </div>
+                    <p className="text-xs font-semibold leading-tight">{t.label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{t.description}</p>
+                    {active ? (
+                      <span className="absolute top-2 right-2 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                      </span>
+                    ) : saving ? (
+                      <span className="absolute top-2 right-2 h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Je kunt het thema op elk moment wijzigen. De lay-out blijft hetzelfde — alleen de sfeer verandert.
+            </p>
           </CardContent>
         </Card>
 

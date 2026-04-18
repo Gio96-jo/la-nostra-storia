@@ -31,11 +31,12 @@ export function AddTaskDialog({ open, onOpenChange, weddingId, onCreated }: Prop
   const [phase, setPhase] = useState<WeddingPhase>("een_tot_drie_maanden");
   const [dueDate, setDueDate] = useState("");
   const [isUrgent, setIsUrgent] = useState(false);
+  const [isHighlighted, setIsHighlighted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function reset() {
     setTitle(""); setDescription(""); setCategory("overig");
-    setPhase("een_tot_drie_maanden"); setDueDate(""); setIsUrgent(false);
+    setPhase("een_tot_drie_maanden"); setDueDate(""); setIsUrgent(false); setIsHighlighted(false);
   }
 
   async function submit(e: React.FormEvent) {
@@ -54,6 +55,7 @@ export function AddTaskDialog({ open, onOpenChange, weddingId, onCreated }: Prop
         is_custom: true,
         sort_order: 9999,
         is_urgent: isUrgent,
+        is_highlighted: isHighlighted,
       })
       .select()
       .single();
@@ -111,6 +113,10 @@ export function AddTaskDialog({ open, onOpenChange, weddingId, onCreated }: Prop
           <div className="flex items-center gap-2">
             <Checkbox id="urgent" checked={isUrgent} onCheckedChange={(v) => setIsUrgent(!!v)} />
             <Label htmlFor="urgent" className="cursor-pointer">Markeer als urgent (verschijnt bovenaan)</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="highlight" checked={isHighlighted} onCheckedChange={(v) => setIsHighlighted(!!v)} />
+            <Label htmlFor="highlight" className="cursor-pointer">Highlight deze taak (lichte markering)</Label>
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Annuleren</Button>

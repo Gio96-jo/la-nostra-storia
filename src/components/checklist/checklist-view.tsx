@@ -109,6 +109,16 @@ export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: P
     }
   }
 
+  async function toggleHighlight(id: string, value: boolean) {
+    patchItem(id, { is_highlighted: value });
+    const supabase = createClient();
+    const { error } = await supabase.from("checklist_items").update({ is_highlighted: value }).eq("id", id);
+    if (error) {
+      patchItem(id, { is_highlighted: !value });
+      toast.error("Bijwerken mislukt", { description: error.message });
+    }
+  }
+
   async function changeDueDate(id: string, date: string | null) {
     const prev = items.find((i) => i.id === id);
     if (!prev) return;
@@ -210,6 +220,7 @@ export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: P
                 item={item}
                 onStatusChange={(s) => changeStatus(item.id, s)}
                 onUrgentToggle={(v) => toggleUrgent(item.id, v)}
+                onHighlightToggle={(v) => toggleHighlight(item.id, v)}
                 onDueDateChange={(d) => changeDueDate(item.id, d)}
                 onDelete={() => deleteItem(item.id)}
                 onNotesSave={(n) => saveNotes(item.id, n)}
@@ -237,6 +248,7 @@ export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: P
                     item={item}
                     onStatusChange={(s) => changeStatus(item.id, s)}
                     onUrgentToggle={(v) => toggleUrgent(item.id, v)}
+                    onHighlightToggle={(v) => toggleHighlight(item.id, v)}
                     onDueDateChange={(d) => changeDueDate(item.id, d)}
                     onDelete={() => deleteItem(item.id)}
                     onNotesSave={(n) => saveNotes(item.id, n)}

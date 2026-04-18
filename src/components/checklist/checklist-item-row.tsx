@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, ChevronDown, Trash2, StickyNote, Flame, Circle, Loader2, CheckCircle2 } from "lucide-react";
+import { Calendar, ChevronDown, Trash2, StickyNote, Flame, Circle, Loader2, CheckCircle2, Highlighter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ interface Props {
   item: ChecklistItem;
   onStatusChange: (status: ChecklistStatus) => void;
   onUrgentToggle: (value: boolean) => void;
+  onHighlightToggle: (value: boolean) => void;
   onDueDateChange: (date: string | null) => void;
   onDelete: () => void;
   onNotesSave: (notes: string) => void;
@@ -33,7 +34,7 @@ function nextStatus(s: ChecklistStatus): ChecklistStatus {
 }
 
 export function ChecklistItemRow({
-  item, onStatusChange, onUrgentToggle, onDueDateChange, onDelete, onNotesSave,
+  item, onStatusChange, onUrgentToggle, onHighlightToggle, onDueDateChange, onDelete, onNotesSave,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState(item.notes ?? "");
@@ -49,6 +50,7 @@ export function ChecklistItemRow({
       className={cn(
         "rounded-lg border bg-card transition-colors",
         item.status === "done" && "bg-muted/40 opacity-70",
+        item.is_highlighted && item.status !== "done" && !item.is_urgent && "border-amber-300 bg-amber-50/60",
         item.is_urgent && item.status !== "done" && "border-destructive/60 bg-destructive/5"
       )}
     >
@@ -78,6 +80,9 @@ export function ChecklistItemRow({
               )}>
                 {item.is_urgent && item.status !== "done" ? (
                   <Flame className="h-4 w-4 text-destructive shrink-0" fill="currentColor" />
+                ) : null}
+                {item.is_highlighted && item.status !== "done" ? (
+                  <Highlighter className="h-4 w-4 text-amber-500 shrink-0" />
                 ) : null}
                 {item.title}
               </p>
@@ -138,6 +143,22 @@ export function ChecklistItemRow({
                 {item.is_urgent ? "Urgent — klik om te verwijderen" : "Markeer als urgent"}
               </Button>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-muted-foreground">Highlight</Label>
+            <Button
+              type="button"
+              variant={item.is_highlighted ? "default" : "outline"}
+              className={cn(
+                "w-full justify-start",
+                item.is_highlighted && "bg-amber-400 text-amber-950 hover:bg-amber-500"
+              )}
+              onClick={() => onHighlightToggle(!item.is_highlighted)}
+            >
+              <Highlighter className="h-4 w-4" />
+              {item.is_highlighted ? "Highlight — klik om te verwijderen" : "Highlight deze taak"}
+            </Button>
           </div>
 
           <div>

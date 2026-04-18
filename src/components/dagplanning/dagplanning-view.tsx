@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { CalendarClock, Clock, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { CalendarClock, Clock, ExternalLink, Globe, MapPin, Navigation, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -33,6 +33,26 @@ function formatTime(t: string | null): string {
   if (!t) return "";
   // "HH:MM:SS" → "HH:MM"
   return t.slice(0, 5);
+}
+
+function mapsViewUrl(item: DayScheduleItem): string | null {
+  if (item.lat !== null && item.lng !== null) {
+    return `https://www.google.com/maps/search/?api=1&query=${item.lat},${item.lng}`;
+  }
+  if (item.address) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}`;
+  }
+  return null;
+}
+
+function mapsDirectionsUrl(item: DayScheduleItem): string | null {
+  if (item.lat !== null && item.lng !== null) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${item.lat},${item.lng}`;
+  }
+  if (item.address) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(item.address)}`;
+  }
+  return null;
 }
 
 export function DagplanningView({ weddingId, weddingDate, initial }: Props) {
@@ -184,6 +204,35 @@ export function DagplanningView({ weddingId, weddingDate, initial }: Props) {
                       <Clock className="h-3 w-3" />
                       {formatTime(item.start_time)} – {formatTime(item.end_time)}
                     </p>
+                  ) : null}
+                  {(mapsViewUrl(item) || mapsDirectionsUrl(item) || item.website) ? (
+                    <div className="flex flex-wrap gap-2 pt-1 no-print">
+                      {mapsViewUrl(item) ? (
+                        <Button asChild variant="outline" size="sm">
+                          <a href={mapsViewUrl(item)!} target="_blank" rel="noreferrer">
+                            <MapPin className="h-3.5 w-3.5" />
+                            Open in Maps
+                          </a>
+                        </Button>
+                      ) : null}
+                      {mapsDirectionsUrl(item) ? (
+                        <Button asChild variant="outline" size="sm">
+                          <a href={mapsDirectionsUrl(item)!} target="_blank" rel="noreferrer">
+                            <Navigation className="h-3.5 w-3.5" />
+                            Route berekenen
+                          </a>
+                        </Button>
+                      ) : null}
+                      {item.website ? (
+                        <Button asChild variant="outline" size="sm">
+                          <a href={item.website} target="_blank" rel="noreferrer">
+                            <Globe className="h-3.5 w-3.5" />
+                            Website
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </Button>
+                      ) : null}
+                    </div>
                   ) : null}
                 </CardContent>
               </Card>

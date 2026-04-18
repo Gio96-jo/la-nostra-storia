@@ -36,6 +36,7 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
+  const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [hits, setHits] = useState<GeoHit[]>([]);
@@ -50,6 +51,7 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
       setAddress(editing?.address ?? "");
       setLat(editing?.lat ?? null);
       setLng(editing?.lng ?? null);
+      setWebsite(editing?.website ?? "");
       setHits([]);
     }
   }, [open, editing]);
@@ -104,6 +106,7 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
       address: address.trim() || null,
       lat,
       lng,
+      website: website.trim() || null,
     };
     const { data, error } = editing
       ? await supabase.from("day_schedule_items").update(payload).eq("id", editing.id).select().single()
@@ -214,6 +217,17 @@ export function ScheduleItemDialog({ open, onOpenChange, weddingId, editing, onS
                 ))}
               </div>
             ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="web">Website (optioneel)</Label>
+            <Input
+              id="web"
+              type="url"
+              placeholder="https://..."
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
           </div>
 
           <DialogFooter>
