@@ -32,16 +32,29 @@ import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
-import type { Note } from "@/lib/types";
+import type { Note, Photo } from "@/lib/types";
 import { formatDateNL, cn } from "@/lib/utils";
 import { NoteDialog } from "./note-dialog";
+import { PhotoGallery } from "@/components/photos/photo-gallery";
 
-interface Props { weddingId: string; initial: Note[]; }
+interface Props { weddingId: string; initial: Note[]; initialPhotos: Photo[]; }
 
-export function NotesView({ weddingId, initial }: Props) {
+export function NotesView({ weddingId, initial, initialPhotos }: Props) {
   const [notes, setNotes] = useState<Note[]>(initial);
+  const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Note | null>(null);
+
+  function photosForNote(noteId: string) {
+    return photos.filter((p) => p.source_id === noteId);
+  }
+
+  function setPhotosForNote(noteId: string, next: Photo[]) {
+    setPhotos((prev) => [
+      ...prev.filter((p) => p.source_id !== noteId),
+      ...next,
+    ]);
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -155,6 +168,9 @@ export function NotesView({ weddingId, initial }: Props) {
                 <SortableNoteCard
                   key={n.id}
                   note={n}
+                  weddingId={weddingId}
+                  photos={photosForNote(n.id)}
+                  onPhotosChange={(next) => setPhotosForNote(n.id, next)}
                   onEdit={() => { setEditing(n); setDialogOpen(true); }}
                   onDelete={() => deleteNote(n.id)}
                   onTogglePin={() => togglePin(n)}
@@ -178,9 +194,12 @@ export function NotesView({ weddingId, initial }: Props) {
 }
 
 function SortableNoteCard({
-  note, onEdit, onDelete, onTogglePin, onToggleImportant,
+  note, weddingId, photos, onPhotosChange, onEdit, onDelete, onTogglePin, onToggleImportant,
 }: {
   note: Note;
+  weddingId: string;
+  photos: Photo[];
+  onPhotosChange: (next: Photo[]) => void;
   onEdit: () => void;
   onDelete: () => void;
   onTogglePin: () => void;
@@ -257,6 +276,14 @@ function SortableNoteCard({
               <span className="truncate">{note.link_url.replace(/^https?:\/\//, "")}</span>
             </a>
           ) : null}
+          <PhotoGallery
+            weddingId={weddingId}
+            sourceType="note"
+            sourceId={note.id}
+            photos={photos}
+            onPhotosChange={onPhotosChange}
+            compact
+          />
           <p className="text-xs text-muted-foreground pt-2 border-t">{formatDateNL(note.created_at)}</p>
         </CardContent>
       </Card>

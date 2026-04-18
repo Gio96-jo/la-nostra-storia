@@ -1,6 +1,6 @@
 import { getCurrentWedding } from "@/lib/wedding";
 import { ChecklistView } from "@/components/checklist/checklist-view";
-import type { TaskCategory } from "@/lib/types";
+import type { TaskCategory, Photo } from "@/lib/types";
 import { CATEGORIES } from "@/lib/constants";
 
 export const metadata = { title: "Checklist" };
@@ -13,12 +13,20 @@ export default async function ChecklistPage({
   const { wedding, supabase } = await getCurrentWedding();
   if (!wedding) return null;
 
-  const { data: items } = await supabase
-    .from("checklist_items")
-    .select("*")
-    .eq("wedding_id", wedding.id)
-    .order("phase", { ascending: true })
-    .order("sort_order", { ascending: true });
+  const [{ data: items }, { data: photos }] = await Promise.all([
+    supabase
+      .from("checklist_items")
+      .select("*")
+      .eq("wedding_id", wedding.id)
+      .order("phase", { ascending: true })
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("photos")
+      .select("*")
+      .eq("wedding_id", wedding.id)
+      .eq("source_type", "checklist")
+      .order("uploaded_at", { ascending: false }),
+  ]);
 
   const catParam = searchParams.cat;
   const initialCat: "all" | TaskCategory =
@@ -30,6 +38,7 @@ export default async function ChecklistPage({
     <ChecklistView
       weddingId={wedding.id}
       initialItems={items ?? []}
+      initialPhotos={(photos ?? []) as Photo[]}
       initialCat={initialCat}
     />
   );

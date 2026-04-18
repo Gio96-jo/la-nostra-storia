@@ -161,6 +161,22 @@ export interface DayScheduleItem {
   updated_at: string;
 }
 
+export type PhotoSourceType = "note" | "checklist" | "booth";
+
+export interface Photo {
+  id: string;
+  wedding_id: string;
+  storage_path: string;
+  source_type: PhotoSourceType;
+  source_id: string | null;
+  caption: string | null;
+  mime_type: string | null;
+  size_bytes: number | null;
+  width: number | null;
+  height: number | null;
+  uploaded_at: string;
+}
+
 // Supabase Database type
 export type Database = {
   public: {
@@ -175,6 +191,11 @@ export type Database = {
         Row: DayScheduleItem;
         Insert: Partial<DayScheduleItem> & Pick<DayScheduleItem, "wedding_id" | "start_time" | "title">;
         Update: Partial<DayScheduleItem>;
+      };
+      photos: {
+        Row: Photo;
+        Insert: Partial<Photo> & Pick<Photo, "wedding_id" | "storage_path" | "source_type">;
+        Update: Partial<Photo>;
       };
     };
   };

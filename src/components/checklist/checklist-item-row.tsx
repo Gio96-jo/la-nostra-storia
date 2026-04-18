@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, ChevronDown, Trash2, StickyNote, Flame, Circle, Loader2, CheckCircle2, Highlighter } from "lucide-react";
+import { Calendar, ChevronDown, Trash2, StickyNote, Flame, Circle, Loader2, CheckCircle2, Highlighter, ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatDateNL } from "@/lib/utils";
 import { getCategoryMeta, getChecklistStatusMeta } from "@/lib/constants";
-import type { ChecklistItem, ChecklistStatus } from "@/lib/types";
+import type { ChecklistItem, ChecklistStatus, Photo } from "@/lib/types";
+import { PhotoGallery } from "@/components/photos/photo-gallery";
 
 interface Props {
   item: ChecklistItem;
+  weddingId: string;
+  photos: Photo[];
+  onPhotosChange: (next: Photo[]) => void;
   onStatusChange: (status: ChecklistStatus) => void;
   onUrgentToggle: (value: boolean) => void;
   onHighlightToggle: (value: boolean) => void;
@@ -34,7 +38,7 @@ function nextStatus(s: ChecklistStatus): ChecklistStatus {
 }
 
 export function ChecklistItemRow({
-  item, onStatusChange, onUrgentToggle, onHighlightToggle, onDueDateChange, onDelete, onNotesSave,
+  item, weddingId, photos, onPhotosChange, onStatusChange, onUrgentToggle, onHighlightToggle, onDueDateChange, onDelete, onNotesSave,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState(item.notes ?? "");
@@ -104,6 +108,11 @@ export function ChecklistItemRow({
                     <StickyNote className="h-3 w-3" /> notitie
                   </span>
                 ) : null}
+                {photos.length > 0 ? (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <ImageIcon className="h-3 w-3" /> {photos.length}
+                  </span>
+                ) : null}
               </div>
             </div>
             <ChevronDown
@@ -169,6 +178,18 @@ export function ChecklistItemRow({
               onBlur={() => onNotesSave(notes)}
               placeholder="Eigen aantekeningen voor deze taak..."
               className="mt-1"
+            />
+          </div>
+
+          <div className="no-print">
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Foto&apos;s</Label>
+            <PhotoGallery
+              weddingId={weddingId}
+              sourceType="checklist"
+              sourceId={item.id}
+              photos={photos}
+              onPhotosChange={onPhotosChange}
+              compact
             />
           </div>
 

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES, PHASES } from "@/lib/constants";
-import type { ChecklistItem, ChecklistStatus, TaskCategory, WeddingPhase } from "@/lib/types";
+import type { ChecklistItem, ChecklistStatus, Photo, TaskCategory, WeddingPhase } from "@/lib/types";
 import { ChecklistItemRow } from "./checklist-item-row";
 import { AddTaskDialog } from "./add-task-dialog";
 import { createClient } from "@/lib/supabase/client";
@@ -18,17 +18,26 @@ import { createClient } from "@/lib/supabase/client";
 interface Props {
   weddingId: string;
   initialItems: ChecklistItem[];
+  initialPhotos?: Photo[];
   initialCat?: "all" | TaskCategory;
 }
 
 type StatusFilter = "all" | "open" | "in_progress" | "done";
 
-export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: Props) {
+export function ChecklistView({ weddingId, initialItems, initialPhotos = [], initialCat = "all" }: Props) {
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
+  const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<"all" | TaskCategory>(initialCat);
   const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
   const [adding, setAdding] = useState(false);
+
+  function photosForTask(taskId: string) {
+    return photos.filter((p) => p.source_id === taskId);
+  }
+  function setPhotosForTask(taskId: string, next: Photo[]) {
+    setPhotos((prev) => [...prev.filter((p) => p.source_id !== taskId), ...next]);
+  }
 
   const filtered = useMemo(() => {
     return items.filter((i) => {
@@ -218,6 +227,9 @@ export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: P
               <ChecklistItemRow
                 key={item.id}
                 item={item}
+                weddingId={weddingId}
+                photos={photosForTask(item.id)}
+                onPhotosChange={(next) => setPhotosForTask(item.id, next)}
                 onStatusChange={(s) => changeStatus(item.id, s)}
                 onUrgentToggle={(v) => toggleUrgent(item.id, v)}
                 onHighlightToggle={(v) => toggleHighlight(item.id, v)}
@@ -246,6 +258,9 @@ export function ChecklistView({ weddingId, initialItems, initialCat = "all" }: P
                   <ChecklistItemRow
                     key={item.id}
                     item={item}
+                    weddingId={weddingId}
+                    photos={photosForTask(item.id)}
+                    onPhotosChange={(next) => setPhotosForTask(item.id, next)}
                     onStatusChange={(s) => changeStatus(item.id, s)}
                     onUrgentToggle={(v) => toggleUrgent(item.id, v)}
                     onHighlightToggle={(v) => toggleHighlight(item.id, v)}

@@ -83,6 +83,8 @@ export const NAV_ITEMS = [
   { href: "/leveranciers", label: "Leveranciers", icon: "Building2" },
   { href: "/tijdlijn", label: "Tijdlijn", icon: "CalendarDays" },
   { href: "/dagplanning", label: "Dagplanning", icon: "CalendarClock" },
+  { href: "/ideeen", label: "Ideeën", icon: "Lightbulb" },
+  { href: "/photobooth", label: "Photobooth", icon: "Camera" },
   { href: "/notities", label: "Notities", icon: "NotebookPen" },
   { href: "/instellingen", label: "Instellingen", icon: "Settings" },
 ] as const;
