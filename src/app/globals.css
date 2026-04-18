@@ -105,6 +105,15 @@
   @apply bg-muted-foreground/30;
 }
 
+/* iOS / PWA safe-area: voeg inset onderaan toe zodat onze bottom-nav
+   niet onder de home-indicator valt */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
 /* Print styles for checklist */
 @media print {
   .no-print { display: none !important; }
